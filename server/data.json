@@ -1,0 +1,117 @@
+{
+  "products": [
+    {
+      "id": "prod-1",
+      "name": "Veste Technique Minimaliste",
+      "description": "Veste coupe-vent imperméable en nylon recyclé avec coutures thermocollées et coupe structurée.",
+      "category": "vetements",
+      "price": 189,
+      "stock": 14,
+      "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=900&q=80",
+      "badge": "Nouveau",
+      "sku": "KS-VET-001"
+    },
+    {
+      "id": "prod-2",
+      "name": "Hoodie Heavyweight 480g",
+      "description": "Coton biologique épais 480g/m², coupe boxy moderne, finitions bord-côte premium.",
+      "category": "vetements",
+      "price": 95,
+      "stock": 28,
+      "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80",
+      "badge": "Best-seller",
+      "sku": "KS-VET-002"
+    },
+    {
+      "id": "prod-3",
+      "name": "Pantalon Cargo Studio",
+      "description": "Pantalon technique stretch avec poches dissimulées et cordon de serrage à la cheville.",
+      "category": "vetements",
+      "price": 120,
+      "stock": 9,
+      "image": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=900&q=80",
+      "badge": "",
+      "sku": "KS-VET-003"
+    },
+    {
+      "id": "prod-4",
+      "name": "T-Shirt Essentiel Noir",
+      "description": "Jersey de coton peigné 260g, col rond épais, tombé parfait au quotidien.",
+      "category": "vetements",
+      "price": 45,
+      "stock": 42,
+      "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80",
+      "badge": "",
+      "sku": "KS-VET-004"
+    },
+    {
+      "id": "prod-5",
+      "name": "Casque Audio ANC Studio",
+      "description": "Réduction de bruit active hybride, autonomie 45h, aluminium anodisé et coussinets à mémoire de forme.",
+      "category": "technologie",
+      "price": 279,
+      "stock": 11,
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
+      "badge": "Best-seller",
+      "sku": "KS-TEC-001"
+    },
+    {
+      "id": "prod-6",
+      "name": "Clavier Mécanique Sans-Fil 75%",
+      "description": "Châssis en aluminium CNC, switches tactiles silencieux, triple connexion Bluetooth / 2.4GHz / USB-C.",
+      "category": "technologie",
+      "price": 159,
+      "stock": 7,
+      "image": "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=900&q=80",
+      "badge": "Nouveau",
+      "sku": "KS-TEC-002"
+    },
+    {
+      "id": "prod-7",
+      "name": "Montre Connectée Titane",
+      "description": "Écran AMOLED saphir, suivi santé avancé, boîtier titane grade 5 et bracelet fluoroélastomère.",
+      "category": "technologie",
+      "price": 329,
+      "stock": 5,
+      "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
+      "badge": "Stock limité",
+      "sku": "KS-TEC-003"
+    },
+    {
+      "id": "prod-8",
+      "name": "Station de Charge MagSafe 3-en-1",
+      "description": "Charge rapide 15W pour smartphone, montre et écouteurs. Finition verre trempé et alliage de zinc.",
+      "category": "technologie",
+      "price": 89,
+      "stock": 19,
+      "image": "https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=80",
+      "badge": "",
+      "sku": "KS-TEC-004"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-1001",
+      "customerName": "Amine Benali",
+      "customerEmail": "amine.benali@example.com",
+      "customerAddress": "14 Avenue Habib Bourguiba, Tunis",
+      "items": [
+        {
+          "productId": "prod-5",
+          "name": "Casque Audio ANC Studio",
+          "price": 279,
+          "quantity": 1
+        },
+        {
+          "productId": "prod-4",
+          "name": "T-Shirt Essentiel Noir",
+          "price": 45,
+          "quantity": 2
+        }
+      ],
+      "total": 369,
+      "status": "Expédiée",
+      "createdAt": "2026-11-21T17:18:20.569Z"
+    }
+  ]
+}
