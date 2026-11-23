@@ -1,12 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, 'data.json');
+import db from './db.js';
 
 const app = express();
 const PORT = 3001;
@@ -14,256 +8,172 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 
-const initialData = {
-  products: [
-    {
-      id: 'prod-1',
-      name: 'Veste Technique Minimaliste',
-      description: 'Veste coupe-vent imperméable en nylon recyclé avec coutures thermocollées et coupe structurée.',
-      category: 'vetements',
-      price: 189.00,
-      stock: 14,
-      image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=900&q=80',
-      badge: 'Nouveau',
-      sku: 'KS-VET-001'
-    },
-    {
-      id: 'prod-2',
-      name: 'Hoodie Heavyweight 480g',
-      description: 'Coton biologique épais 480g/m², coupe boxy moderne, finitions bord-côte premium.',
-      category: 'vetements',
-      price: 95.00,
-      stock: 28,
-      image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80',
-      badge: 'Best-seller',
-      sku: 'KS-VET-002'
-    },
-    {
-      id: 'prod-3',
-      name: 'Pantalon Cargo Studio',
-      description: 'Pantalon technique stretch avec poches dissimulées et cordon de serrage à la cheville.',
-      category: 'vetements',
-      price: 120.00,
-      stock: 9,
-      image: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=900&q=80',
-      badge: '',
-      sku: 'KS-VET-003'
-    },
-    {
-      id: 'prod-4',
-      name: 'T-Shirt Essentiel Noir',
-      description: 'Jersey de coton peigné 260g, col rond épais, tombé parfait au quotidien.',
-      category: 'vetements',
-      price: 45.00,
-      stock: 42,
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
-      badge: '',
-      sku: 'KS-VET-004'
-    },
-    {
-      id: 'prod-5',
-      name: 'Casque Audio ANC Studio',
-      description: 'Réduction de bruit active hybride, autonomie 45h, aluminium anodisé et coussinets à mémoire de forme.',
-      category: 'technologie',
-      price: 279.00,
-      stock: 11,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
-      badge: 'Best-seller',
-      sku: 'KS-TEC-001'
-    },
-    {
-      id: 'prod-6',
-      name: 'Clavier Mécanique Sans-Fil 75%',
-      description: 'Châssis en aluminium CNC, switches tactiles silencieux, triple connexion Bluetooth / 2.4GHz / USB-C.',
-      category: 'technologie',
-      price: 159.00,
-      stock: 7,
-      image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=900&q=80',
-      badge: 'Nouveau',
-      sku: 'KS-TEC-002'
-    },
-    {
-      id: 'prod-7',
-      name: 'Montre Connectée Titane',
-      description: 'Écran AMOLED saphir, suivi santé avancé, boîtier titane grade 5 et bracelet fluoroélastomère.',
-      category: 'technologie',
-      price: 329.00,
-      stock: 5,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80',
-      badge: 'Stock limité',
-      sku: 'KS-TEC-003'
-    },
-    {
-      id: 'prod-8',
-      name: 'Station de Charge MagSafe 3-en-1',
-      description: 'Charge rapide 15W pour smartphone, montre et écouteurs. Finition verre trempé et alliage de zinc.',
-      category: 'technologie',
-      price: 89.00,
-      stock: 19,
-      image: 'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=80',
-      badge: '',
-      sku: 'KS-TEC-004'
-    }
-  ],
-  orders: [
-    {
-      id: 'ORD-1001',
-      customerName: 'Amine Benali',
-      customerEmail: 'amine.benali@example.com',
-      customerAddress: '14 Avenue Habib Bourguiba, Tunis',
-      items: [
-        { productId: 'prod-5', name: 'Casque Audio ANC Studio', price: 279.00, quantity: 1 },
-        { productId: 'prod-4', name: 'T-Shirt Essentiel Noir', price: 45.00, quantity: 2 }
-      ],
-      total: 369.00,
-      status: 'Expédiée',
-      createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
-    }
-  ]
-};
-
-function readData() {
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
-    return initialData;
-  }
-  try {
-    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return initialData;
-  }
-}
-
-function writeData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-// Initialize data file on startup
-readData();
-
 // Products endpoints
 app.get('/api/products', (req, res) => {
-  const data = readData();
-  res.json(data.products);
+  const products = db.prepare('SELECT * FROM products ORDER BY rowid DESC').all();
+  res.json(products);
 });
 
 app.post('/api/products', (req, res) => {
-  const data = readData();
   const { name, description, category, price, stock, image, badge, sku } = req.body;
   if (!name || price === undefined || stock === undefined || !category) {
     return res.status(400).json({ error: 'Champs obligatoires manquants' });
   }
+
   const newProduct = {
     id: `prod-${Date.now()}`,
     name: String(name).trim(),
     description: String(description || '').trim(),
-    category: category === 'technologie' ? 'technologie' : 'vetements',
+    category: ['airpods', 'accessoires', 'vetements', 'technologie'].includes(category)
+      ? category
+      : 'accessoires',
     price: Number(price),
     stock: Math.max(0, parseInt(stock, 10) || 0),
-    image: image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80',
+    image:
+      image ||
+      'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=900&q=80',
     badge: String(badge || '').trim(),
-    sku: String(sku || `KS-${Date.now().toString().slice(-4)}`).trim()
+    sku: String(sku || `KS-${Date.now().toString().slice(-4)}`).trim(),
   };
-  data.products.unshift(newProduct);
-  writeData(data);
+
+  db.prepare(`
+    INSERT INTO products (id, name, description, category, price, stock, image, badge, sku)
+    VALUES (@id, @name, @description, @category, @price, @stock, @image, @badge, @sku)
+  `).run(newProduct);
+
   res.status(201).json(newProduct);
 });
 
 app.put('/api/products/:id', (req, res) => {
-  const data = readData();
-  const idx = data.products.findIndex((p) => p.id === req.params.id);
-  if (idx === -1) {
+  const existing = db.prepare('SELECT * FROM products WHERE id = ?').get(req.params.id);
+  if (!existing) {
     return res.status(404).json({ error: 'Produit introuvable' });
   }
-  const existing = data.products[idx];
+
   const updated = {
     ...existing,
     ...req.body,
     id: existing.id,
     price: req.body.price !== undefined ? Number(req.body.price) : existing.price,
-    stock: req.body.stock !== undefined ? Math.max(0, parseInt(req.body.stock, 10) || 0) : existing.stock,
+    stock:
+      req.body.stock !== undefined
+        ? Math.max(0, parseInt(req.body.stock, 10) || 0)
+        : existing.stock,
   };
-  data.products[idx] = updated;
-  writeData(data);
+
+  db.prepare(`
+    UPDATE products
+    SET name = @name,
+        description = @description,
+        category = @category,
+        price = @price,
+        stock = @stock,
+        image = @image,
+        badge = @badge,
+        sku = @sku
+    WHERE id = @id
+  `).run(updated);
+
   res.json(updated);
 });
 
 app.delete('/api/products/:id', (req, res) => {
-  const data = readData();
-  const filtered = data.products.filter((p) => p.id !== req.params.id);
-  if (filtered.length === data.products.length) {
+  const info = db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
+  if (info.changes === 0) {
     return res.status(404).json({ error: 'Produit introuvable' });
   }
-  data.products = filtered;
-  writeData(data);
   res.json({ success: true });
 });
 
 // Orders endpoints
 app.get('/api/orders', (req, res) => {
-  const data = readData();
-  res.json(data.orders);
+  const orders = db.prepare('SELECT * FROM orders ORDER BY createdAt DESC').all();
+  const getItems = db.prepare('SELECT productId, name, price, quantity FROM order_items WHERE orderId = ?');
+
+  const result = orders.map((order) => ({
+    ...order,
+    items: getItems.all(order.id),
+  }));
+
+  res.json(result);
 });
 
 app.post('/api/orders', (req, res) => {
-  const data = readData();
   const { customerName, customerEmail, customerAddress, items } = req.body;
   if (!customerName || !customerEmail || !customerAddress || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Informations de commande incomplètes' });
   }
 
-  let total = 0;
-  const orderItems = [];
+  const placeOrder = db.transaction(() => {
+    let total = 0;
+    const orderItems = [];
 
-  for (const item of items) {
-    const product = data.products.find((p) => p.id === item.productId);
-    if (!product) {
-      return res.status(400).json({ error: `Produit introuvable: ${item.productId}` });
+    for (const item of items) {
+      const product = db.prepare('SELECT * FROM products WHERE id = ?').get(item.productId);
+      if (!product) {
+        throw new Error(`Produit introuvable: ${item.productId}`);
+      }
+      const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
+      if (product.stock < qty) {
+        throw new Error(`Stock insuffisant pour ${product.name} (${product.stock} disponible)`);
+      }
+
+      db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?').run(qty, product.id);
+      total += product.price * qty;
+      orderItems.push({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: qty,
+      });
     }
-    const qty = Math.max(1, parseInt(item.quantity, 10) || 1);
-    if (product.stock < qty) {
-      return res.status(400).json({ error: `Stock insuffisant pour ${product.name} (${product.stock} disponible)` });
+
+    const orderCount = db.prepare('SELECT COUNT(*) AS count FROM orders').get().count;
+    const newOrder = {
+      id: `ORD-${1000 + orderCount + 1}`,
+      customerName: String(customerName).trim(),
+      customerEmail: String(customerEmail).trim(),
+      customerAddress: String(customerAddress).trim(),
+      total: Number(total.toFixed(2)),
+      status: 'En attente',
+      createdAt: new Date().toISOString(),
+    };
+
+    db.prepare(`
+      INSERT INTO orders (id, customerName, customerEmail, customerAddress, total, status, createdAt)
+      VALUES (@id, @customerName, @customerEmail, @customerAddress, @total, @status, @createdAt)
+    `).run(newOrder);
+
+    const insertItem = db.prepare(`
+      INSERT INTO order_items (orderId, productId, name, price, quantity)
+      VALUES (@orderId, @productId, @name, @price, @quantity)
+    `);
+    for (const oi of orderItems) {
+      insertItem.run({ orderId: newOrder.id, ...oi });
     }
-    product.stock -= qty;
-    total += product.price * qty;
-    orderItems.push({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: qty
-    });
+
+    return { ...newOrder, items: orderItems };
+  });
+
+  try {
+    const createdOrder = placeOrder();
+    res.status(201).json(createdOrder);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
-
-  const newOrder = {
-    id: `ORD-${1000 + data.orders.length + 1}`,
-    customerName: String(customerName).trim(),
-    customerEmail: String(customerEmail).trim(),
-    customerAddress: String(customerAddress).trim(),
-    items: orderItems,
-    total: Number(total.toFixed(2)),
-    status: 'En attente',
-    createdAt: new Date().toISOString()
-  };
-
-  data.orders.unshift(newOrder);
-  writeData(data);
-  res.status(201).json(newOrder);
 });
 
 app.patch('/api/orders/:id', (req, res) => {
-  const data = readData();
-  const order = data.orders.find((o) => o.id === req.params.id);
-  if (!order) {
+  const existing = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id);
+  if (!existing) {
     return res.status(404).json({ error: 'Commande introuvable' });
   }
-  if (req.body.status) {
-    order.status = req.body.status;
-  }
-  writeData(data);
-  res.json(order);
+  const status = req.body.status || existing.status;
+  db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(status, req.params.id);
+  const items = db.prepare('SELECT productId, name, price, quantity FROM order_items WHERE orderId = ?').all(req.params.id);
+  res.json({ ...existing, status, items });
 });
 
 app.listen(PORT, '127.0.0.1', () => {
-  console.log(`API server running on http://127.0.0.1:${PORT}`);
+  console.log(`API server running with SQLite on http://127.0.0.1:${PORT}`);
 });
