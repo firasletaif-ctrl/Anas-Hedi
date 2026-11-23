@@ -22,15 +22,19 @@ interface SellerDashboardProps {
 }
 
 const PRESET_IMAGES: Record<Category, string[]> = {
+  airpods: [
+    'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?auto=format&fit=crop&w=900&q=80',
+  ],
+  accessoires: [
+    'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?auto=format&fit=crop&w=900&q=80',
+  ],
   vetements: [
     'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
   ],
   technologie: [
     'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=900&q=80',
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80',
   ],
 };
 
@@ -67,11 +71,11 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   const openCreateModal = () => {
     setEditingProduct(null);
     setName('');
-    setCategory('vetements');
+    setCategory('airpods');
     setPrice('');
     setStock('10');
     setDescription('');
-    setImage(PRESET_IMAGES.vetements[0]);
+    setImage(PRESET_IMAGES.airpods[0]);
     setBadge('Nouveau');
     setSku('');
     setIsModalOpen(true);

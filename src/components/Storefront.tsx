@@ -1,11 +1,18 @@
 import React, { useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, ShoppingBag, X, Check, ArrowUpRight, Package } from 'lucide-react';
+import { Search, SlidersHorizontal, ShoppingBag, X, Check, ArrowUpRight, Package, Sparkles } from 'lucide-react';
 import { Product, Category } from '../types';
 
 interface StorefrontProps {
   products: Product[];
   onAddToCart: (product: Product, quantity: number) => void;
 }
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  airpods: 'AirPods',
+  accessoires: 'Accessoires',
+  vetements: 'Vêtements',
+  technologie: 'Technologie',
+};
 
 export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart }) => {
   const [selectedCategory, setSelectedCategory] = useState<'all' | Category>('all');
@@ -51,39 +58,44 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-      {/* Hero Section */}
-      <section className="py-12 sm:py-16 border-b border-neutral-200/80">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-medium text-neutral-600 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Collection 2026 — Vêtements & Technologie
+      {/* Bold Dark Hero */}
+      <section className="relative py-14 sm:py-20 border-b border-white/10 overflow-hidden">
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-purple-600/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl" />
+
+        <div className="relative max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-300 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            Édition Premium 2026 — AirPods & Accessoires de Marque
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0A0A0A] leading-[1.08]">
-            Design minimaliste.
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.06]">
+            Son d’exception.
             <br />
-            <span className="text-neutral-400">Performance quotidienne.</span>
+            <span className="bg-gradient-to-r from-white via-zinc-300 to-purple-400 bg-clip-text text-transparent">
+              Accessoires de prestige.
+            </span>
           </h1>
-          <p className="mt-5 text-base sm:text-lg text-neutral-500 max-w-xl leading-relaxed">
-            Une sélection pointue de pièces vestimentaires techniques et d’objets technologiques conçus pour durer.
+          <p className="mt-5 text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed">
+            Découvrez notre sélection exclusive d’AirPods nouvelle génération et d’accessoires design de marque, conçus pour sublimer votre quotidien.
           </p>
         </div>
       </section>
 
       {/* Filter & Search Bar */}
-      <section className="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-16 z-20 bg-[#FAFAFA]/90 backdrop-blur-md border-b border-neutral-200/60">
+      <section className="py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-16 z-20 bg-[#070709]/90 backdrop-blur-md border-b border-white/10">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
           {[
             { id: 'all', label: 'Tout voir' },
-            { id: 'vetements', label: 'Vêtements' },
-            { id: 'technologie', label: 'Technologie' },
+            { id: 'airpods', label: 'AirPods' },
+            { id: 'accessoires', label: 'Accessoires' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setSelectedCategory(tab.id as 'all' | Category)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 selectedCategory === tab.id
-                  ? 'bg-[#0A0A0A] text-white shadow-xs'
-                  : 'bg-white text-neutral-600 border border-neutral-200 hover:border-neutral-300 hover:text-[#0A0A0A]'
+                  ? 'bg-white text-[#070709] shadow-sm'
+                  : 'bg-[#121218] text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
               }`}
             >
               {tab.label}
@@ -93,22 +105,22 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
 
         <div className="flex items-center gap-3">
           <div className="relative flex-1 md:w-64">
-            <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Rechercher un article..."
-              className="w-full pl-10 pr-4 py-2 bg-white border border-neutral-200 rounded-full text-sm text-[#0A0A0A] placeholder:text-neutral-400 focus:outline-none focus:border-[#0A0A0A] transition-colors"
+              className="w-full pl-10 pr-4 py-2 bg-[#121218] border border-white/10 rounded-full text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-white/30 transition-colors"
             />
           </div>
 
           <div className="relative flex items-center">
-            <SlidersHorizontal className="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none" />
+            <SlidersHorizontal className="w-4 h-4 text-zinc-500 absolute left-3 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'default' | 'price-asc' | 'price-desc')}
-              className="pl-9 pr-4 py-2 bg-white border border-neutral-200 rounded-full text-sm text-neutral-700 focus:outline-none focus:border-[#0A0A0A] cursor-pointer appearance-none"
+              className="pl-9 pr-4 py-2 bg-[#121218] border border-white/10 rounded-full text-sm text-zinc-300 focus:outline-none focus:border-white/30 cursor-pointer appearance-none"
             >
               <option value="default">Trier : Pertinence</option>
               <option value="price-asc">Prix : Croissant</option>
@@ -122,11 +134,11 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
       <section className="pt-8">
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
-            <Package className="w-10 h-10 text-neutral-300 mx-auto mb-3" />
-            <p className="text-neutral-500 font-medium">Aucun article ne correspond à votre recherche.</p>
+            <Package className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+            <p className="text-zinc-400 font-medium">Aucun article ne correspond à votre recherche.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => {
               const outOfStock = product.stock <= 0;
               const isAdded = addedId === product.id;
@@ -135,24 +147,26 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                 <article
                   key={product.id}
                   onClick={() => openModal(product)}
-                  className="group cursor-pointer flex flex-col"
+                  className="group cursor-pointer flex flex-col bg-[#111116] rounded-2xl border border-white/10 overflow-hidden hover:border-white/25 transition-all duration-300"
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-200/70">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#181820]">
                     <img
                       src={product.image}
                       alt={product.name}
                       loading="lazy"
                       className={`h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105 ${
-                        outOfStock ? 'opacity-50 grayscale' : ''
+                        outOfStock ? 'opacity-40 grayscale' : ''
                       }`}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111116] via-transparent to-transparent opacity-60" />
+
                     <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                       {outOfStock ? (
-                        <span className="px-2.5 py-1 rounded-full bg-neutral-900 text-white text-[11px] font-medium">
+                        <span className="px-2.5 py-1 rounded-full bg-red-500/90 text-white text-[11px] font-semibold">
                           Rupture
                         </span>
                       ) : product.badge ? (
-                        <span className="px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#0A0A0A] text-[11px] font-medium shadow-xs">
+                        <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white text-[11px] font-medium">
                           {product.badge}
                         </span>
                       ) : null}
@@ -161,10 +175,10 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                     {!outOfStock && (
                       <button
                         onClick={(e) => handleQuickAdd(e, product)}
-                        className={`absolute bottom-3 right-3 h-10 px-3.5 rounded-full flex items-center gap-1.5 text-xs font-medium shadow-md transition-all duration-200 cursor-pointer ${
+                        className={`absolute bottom-3 right-3 h-10 px-4 rounded-full flex items-center gap-1.5 text-xs font-semibold shadow-lg transition-all duration-200 cursor-pointer ${
                           isAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-white/95 backdrop-blur-xs text-[#0A0A0A] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-[#0A0A0A] hover:text-white'
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-white text-[#070709] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 hover:bg-zinc-200'
                         }`}
                       >
                         {isAdded ? (
@@ -182,16 +196,16 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                     )}
                   </div>
 
-                  <div className="mt-3.5 flex items-start justify-between gap-2">
+                  <div className="p-4 flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-                        {product.category === 'vetements' ? 'Vêtements' : 'Technologie'}
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">
+                        {CATEGORY_LABELS[product.category] || product.category}
                       </p>
-                      <h3 className="mt-0.5 text-sm font-medium text-[#0A0A0A] group-hover:underline decoration-neutral-300 underline-offset-4">
+                      <h3 className="mt-1 text-sm font-semibold text-white group-hover:text-zinc-200">
                         {product.name}
                       </h3>
                     </div>
-                    <span className="text-sm font-semibold text-[#0A0A0A] whitespace-nowrap">
+                    <span className="text-sm font-bold text-white whitespace-nowrap">
                       {product.price.toFixed(2)} €
                     </span>
                   </div>
@@ -205,14 +219,14 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
       {/* Product Detail Modal */}
       {selectedProduct && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
           onClick={() => setSelectedProduct(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-neutral-200 grid grid-cols-1 md:grid-cols-2"
+            className="bg-[#121218] rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-white/15 grid grid-cols-1 md:grid-cols-2"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="aspect-square md:aspect-auto bg-neutral-100 relative">
+            <div className="aspect-square md:aspect-auto bg-[#181820] relative">
               <img
                 src={selectedProduct.image}
                 alt={selectedProduct.name}
@@ -223,26 +237,26 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
             <div className="p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-                    {selectedProduct.category === 'vetements' ? 'Vêtements' : 'Technologie'}
+                  <span className="text-xs font-semibold uppercase tracking-wider text-purple-400">
+                    {CATEGORY_LABELS[selectedProduct.category] || selectedProduct.category}
                     {selectedProduct.sku ? ` · ${selectedProduct.sku}` : ''}
                   </span>
                   <button
                     onClick={() => setSelectedProduct(null)}
-                    className="p-1.5 rounded-full hover:bg-neutral-100 text-neutral-500 cursor-pointer"
+                    className="p-1.5 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <h2 className="mt-3 font-display text-2xl font-bold text-[#0A0A0A]">
+                <h2 className="mt-3 font-display text-2xl font-bold text-white">
                   {selectedProduct.name}
                 </h2>
-                <p className="mt-2 text-2xl font-semibold text-[#0A0A0A]">
+                <p className="mt-2 text-2xl font-bold text-white">
                   {selectedProduct.price.toFixed(2)} €
                 </p>
 
-                <p className="mt-4 text-sm text-neutral-600 leading-relaxed">
+                <p className="mt-4 text-sm text-zinc-400 leading-relaxed">
                   {selectedProduct.description || 'Aucune description disponible.'}
                 </p>
 
@@ -250,13 +264,13 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                   <span
                     className={`w-2 h-2 rounded-full ${
                       selectedProduct.stock > 5
-                        ? 'bg-emerald-500'
+                        ? 'bg-emerald-400'
                         : selectedProduct.stock > 0
-                        ? 'bg-amber-500'
+                        ? 'bg-amber-400'
                         : 'bg-red-500'
                     }`}
                   />
-                  <span className="text-neutral-600">
+                  <span className="text-zinc-300">
                     {selectedProduct.stock > 0
                       ? `${selectedProduct.stock} en stock`
                       : 'Rupture de stock'}
@@ -264,20 +278,20 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-neutral-100 flex items-center gap-3">
+              <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-3">
                 {selectedProduct.stock > 0 ? (
                   <>
-                    <div className="flex items-center border border-neutral-200 rounded-full h-11 px-2">
+                    <div className="flex items-center border border-white/15 bg-[#181820] rounded-full h-11 px-2">
                       <button
                         onClick={() => setModalQty((q) => Math.max(1, q - 1))}
-                        className="w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-[#0A0A0A] cursor-pointer"
+                        className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer"
                       >
                         -
                       </button>
-                      <span className="w-8 text-center text-sm font-medium">{modalQty}</span>
+                      <span className="w-8 text-center text-sm font-medium text-white">{modalQty}</span>
                       <button
                         onClick={() => setModalQty((q) => Math.min(selectedProduct.stock, q + 1))}
-                        className="w-8 h-8 flex items-center justify-center text-neutral-600 hover:text-[#0A0A0A] cursor-pointer"
+                        className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer"
                       >
                         +
                       </button>
@@ -287,7 +301,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                         onAddToCart(selectedProduct, modalQty);
                         setSelectedProduct(null);
                       }}
-                      className="flex-1 h-11 bg-[#0A0A0A] text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="flex-1 h-11 bg-white text-[#070709] rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       Ajouter au panier
                       <ArrowUpRight className="w-4 h-4" />
@@ -296,7 +310,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, onAddToCart })
                 ) : (
                   <button
                     disabled
-                    className="w-full h-11 bg-neutral-100 text-neutral-400 rounded-full text-sm font-medium cursor-not-allowed"
+                    className="w-full h-11 bg-white/5 text-zinc-500 rounded-full text-sm font-medium cursor-not-allowed"
                   >
                     Indisponible
                   </button>

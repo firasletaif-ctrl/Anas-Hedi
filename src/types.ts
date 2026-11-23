@@ -1,4 +1,4 @@
-export type Category = 'vetements' | 'technologie';
+export type Category = 'airpods' | 'accessoires' | 'vetements' | 'technologie';
 
 export interface Product {
   id: string;

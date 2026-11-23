@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, Store, LayoutDashboard } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { Logo } from './components/Logo';
 import { Storefront } from './components/Storefront';
 import { SellerDashboard } from './components/SellerDashboard';
@@ -7,12 +7,20 @@ import { CartDrawer } from './components/CartDrawer';
 import { Product, CartItem, Order, OrderStatus } from './types';
 
 export function App() {
-  const [view, setView] = useState<'client' | 'seller'>('client');
+  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === '#/admin');
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setIsAdmin(window.location.hash === '#/admin');
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -124,49 +132,28 @@ export function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAFA]">
+    <div className="min-h-screen flex flex-col bg-[#070709] text-white">
       {/* Navigation */}
-      <header className="sticky top-0 z-30 h-16 bg-white/85 backdrop-blur-md border-b border-neutral-200/80">
+      <header className="sticky top-0 z-30 h-16 bg-[#0A0A0F]/85 backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-          <button onClick={() => setView('client')} className="cursor-pointer">
+          <button
+            onClick={() => {
+              if (isAdmin) window.location.hash = '';
+            }}
+            className="cursor-pointer"
+          >
             <Logo />
           </button>
-
-          {/* Mode Switcher */}
-          <div className="flex items-center bg-neutral-100 p-1 rounded-full border border-neutral-200/70">
-            <button
-              onClick={() => setView('client')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                view === 'client'
-                  ? 'bg-white text-[#0A0A0A] shadow-xs'
-                  : 'text-neutral-500 hover:text-[#0A0A0A]'
-              }`}
-            >
-              <Store className="w-3.5 h-3.5" />
-              <span>Boutique</span>
-            </button>
-            <button
-              onClick={() => setView('seller')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                view === 'seller'
-                  ? 'bg-white text-[#0A0A0A] shadow-xs'
-                  : 'text-neutral-500 hover:text-[#0A0A0A]'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Vendeur</span>
-            </button>
-          </div>
 
           {/* Cart Trigger */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-neutral-200 bg-white hover:border-[#0A0A0A] transition-colors text-xs font-medium text-[#0A0A0A] cursor-pointer"
+            className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/15 bg-[#121218] hover:border-white/35 transition-colors text-xs font-semibold text-white cursor-pointer"
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="hidden sm:inline">Panier</span>
             {cartCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#0A0A0A] text-white text-[11px] flex items-center justify-center font-semibold">
+              <span className="w-5 h-5 rounded-full bg-white text-[#070709] text-[11px] flex items-center justify-center font-bold">
                 {cartCount}
               </span>
             )}
@@ -177,10 +164,8 @@ export function App() {
       {/* Main Content */}
       <main className="flex-1">
         {loading ? (
-          <div className="py-32 text-center text-sm text-neutral-400">Chargement...</div>
-        ) : view === 'client' ? (
-          <Storefront products={products} onAddToCart={handleAddToCart} />
-        ) : (
+          <div className="py-32 text-center text-sm text-zinc-500">Chargement...</div>
+        ) : isAdmin ? (
           <SellerDashboard
             products={products}
             orders={orders}
@@ -189,15 +174,17 @@ export function App() {
             onDeleteProduct={handleDeleteProduct}
             onUpdateOrderStatus={handleUpdateOrderStatus}
           />
+        ) : (
+          <Storefront products={products} onAddToCart={handleAddToCart} />
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200/80 bg-white py-8">
+      <footer className="border-t border-white/10 bg-[#0A0A0F] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Logo />
-          <p className="text-xs text-neutral-400">
-            © {new Date().getFullYear()} KORE STUDIO — Vêtements & Technologie. Tous droits réservés.
+          <p className="text-xs text-zinc-500">
+            © {new Date().getFullYear()} KORE STUDIO — AirPods & Accessoires de Marque. Tous droits réservés.
           </p>
         </div>
       </footer>
