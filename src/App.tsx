@@ -11,8 +11,12 @@ function isNightTime() {
   return hour >= 19 || hour < 6;
 }
 
+function checkIsAdmin() {
+  return window.location.pathname === '/admin' || window.location.hash === '#/admin';
+}
+
 export function App() {
-  const [isAdmin, setIsAdmin] = useState(() => window.location.hash === '#/admin');
+  const [isAdmin, setIsAdmin] = useState(checkIsAdmin);
   const [isDark, setIsDark] = useState<boolean>(() => isNightTime());
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('zs_admin_token'));
 
@@ -24,9 +28,13 @@ export function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const onHashChange = () => setIsAdmin(window.location.hash === '#/admin');
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    const onRouteChange = () => setIsAdmin(checkIsAdmin());
+    window.addEventListener('hashchange', onRouteChange);
+    window.addEventListener('popstate', onRouteChange);
+    return () => {
+      window.removeEventListener('hashchange', onRouteChange);
+      window.removeEventListener('popstate', onRouteChange);
+    };
   }, []);
 
   const fetchPublicProducts = async () => {
