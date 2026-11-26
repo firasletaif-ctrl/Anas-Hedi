@@ -448,16 +448,28 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 </div>
                 <div className="flex items-center justify-between md:flex-col md:items-end gap-3">
                   <span className="font-display text-xl font-bold">{order.total.toFixed(2)} DT</span>
-                  <select
-                    value={order.status}
-                    onChange={(e) => onUpdateOrderStatus(order.id, e.target.value as OrderStatus)}
-                    className="px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-200 bg-neutral-50 cursor-pointer"
-                  >
-                    <option value="En attente">En attente</option>
-                    <option value="Expédiée">Expédiée</option>
-                    <option value="Livrée">Livrée</option>
-                    <option value="Annulée">Annulée</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`https://wa.me/${(order.customerAddress.match(/Tél:\s*([0-9+\s]+)/)?.[1] || '').replace(/\s+/g, '')}?text=${encodeURIComponent(
+                        `Bonjour ${order.customerName}, votre commande ${order.id} sur ZoneStore (${order.total.toFixed(2)} DT) est bien confirmée ! Statut : ${order.status}.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#25D366] text-white hover:opacity-90"
+                    >
+                      WhatsApp
+                    </a>
+                    <select
+                      value={order.status}
+                      onChange={(e) => onUpdateOrderStatus(order.id, e.target.value as OrderStatus)}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium border border-neutral-200 bg-neutral-50 cursor-pointer"
+                    >
+                      <option value="En attente">En attente</option>
+                      <option value="Expédiée">Expédiée</option>
+                      <option value="Livrée">Livrée</option>
+                      <option value="Annulée">Annulée</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             ))
