@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Search,
   ShoppingBag,
@@ -32,10 +32,13 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
   const [modalQty, setModalQty] = useState(1);
   const [addedId, setAddedId] = useState<string | null>(null);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedProduct]);
+
   const openProductPage = (product: Product) => {
     setSelectedProduct(product);
     setModalQty(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const filteredProducts = useMemo(() => {
