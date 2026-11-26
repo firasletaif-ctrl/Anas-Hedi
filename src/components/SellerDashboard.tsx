@@ -56,7 +56,11 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'stock' | 'stats' | 'backup'>('stock');
+  const [activeTab, setActiveTab] = useState<'orders' | 'stock' | 'stats' | 'admins' | 'backup'>('stock');
+  const [adminsList, setAdminsList] = useState<{ id: string; email: string }[]>([]);
+  const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [adminMsg, setAdminMsg] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -91,7 +95,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
 
     return (
       <div className="min-h-[75vh] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm bg-white dark:bg-[#121216] border border-neutral-200 dark:border-white/10 rounded-3xl p-8 shadow-xl">
+        <div className="w-full max-w-sm bg-white border border-neutral-200 rounded-3xl p-8 shadow-xl text-[#0A0A0A]">
           <div className="w-11 h-11 rounded-2xl bg-[#0A0A0A] text-white flex items-center justify-center mb-5">
             <Lock className="w-5 h-5" />
           </div>
@@ -115,7 +119,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@zonestore.com"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-neutral-300 text-sm text-[#0A0A0A] placeholder:text-neutral-400 focus:outline-none focus:border-[#0A0A0A]"
               />
             </div>
             <div>
@@ -126,7 +130,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#0A0A0A]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-neutral-300 text-sm text-[#0A0A0A] placeholder:text-neutral-400 focus:outline-none focus:border-[#0A0A0A]"
               />
             </div>
             <button
@@ -141,6 +145,48 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
       </div>
     );
   }
+
+  React.useEffect(() => {
+    if (token && activeTab === 'admins') {
+      fetch('/api/admins', { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => (r.ok ? r.json() : []))
+        .then(setAdminsList)
+        .catch(() => {});
+    }
+  }, [token, activeTab]);
+
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminMsg('');
+    const res = await fetch('/api/admins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ email: newAdminEmail, password: newAdminPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Erreur');
+      return;
+    }
+    setAdminsList((prev) => [...prev, data]);
+    setNewAdminEmail('');
+    setNewAdminPassword('');
+    setAdminMsg('Compte admin ajouté !');
+  };
+
+  const handleDeleteAdmin = async (id: string) => {
+    setAdminMsg('');
+    const res = await fetch(`/api/admins/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setAdminMsg(data.error || 'Erreur');
+      return;
+    }
+    setAdminsList((prev) => prev.filter((a) => a.id !== id));
+  };
 
   const validOrders = orders.filter((o) => o.status !== 'Annulée');
   const totalRevenue = validOrders.reduce((sum, o) => sum + o.total, 0);
@@ -270,6 +316,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
           { id: 'stock', label: `Stock (${products.length})` },
           { id: 'orders', label: `Commandes (${orders.length})` },
           { id: 'stats', label: 'Chiffres & Promos' },
+          { id: 'admins', label: 'Comptes Admin' },
           { id: 'backup', label: 'Export / Import ZIP' },
         ].map((tab) => (
           <button
@@ -521,7 +568,64 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 4: BACKUP ZIP */}
+      {/* TAB 4: ADMINS */}
+      {activeTab === 'admins' && (
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 max-w-2xl">
+          <h2 className="font-display text-xl font-bold mb-2">Comptes Administrateurs</h2>
+          <p className="text-sm text-neutral-500 mb-6">
+            Ajoutez d’autres comptes vendeurs ayant accès à cet espace.
+          </p>
+
+          {adminMsg && (
+            <div className="mb-4 p-3 rounded-xl bg-neutral-100 text-xs font-medium text-[#0A0A0A]">
+              {adminMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleAddAdmin} className="flex flex-wrap gap-3 mb-6">
+            <input
+              type="email"
+              required
+              value={newAdminEmail}
+              onChange={(e) => setNewAdminEmail(e.target.value)}
+              placeholder="Email (ex: vendeur@zonestore.com)"
+              className="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl bg-white border border-neutral-300 text-sm text-[#0A0A0A]"
+            />
+            <input
+              type="password"
+              required
+              minLength={4}
+              value={newAdminPassword}
+              onChange={(e) => setNewAdminPassword(e.target.value)}
+              placeholder="Mot de passe"
+              className="w-44 px-3.5 py-2 rounded-xl bg-white border border-neutral-300 text-sm text-[#0A0A0A]"
+            />
+            <button
+              type="submit"
+              className="px-5 py-2 bg-[#0A0A0A] text-white rounded-xl text-sm font-medium cursor-pointer"
+            >
+              Ajouter
+            </button>
+          </form>
+
+          <div className="space-y-2">
+            {adminsList.map((adm) => (
+              <div key={adm.id} className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 border border-neutral-100">
+                <span className="text-sm font-medium text-[#0A0A0A]">{adm.email}</span>
+                <button
+                  onClick={() => handleDeleteAdmin(adm.id)}
+                  className="p-1.5 text-neutral-400 hover:text-red-600 cursor-pointer"
+                  title="Supprimer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: BACKUP ZIP */}
       {activeTab === 'backup' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 max-w-2xl">
           <h2 className="font-display text-xl font-bold">Sauvegarde & Migration Render (.zip)</h2>
