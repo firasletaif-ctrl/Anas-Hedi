@@ -450,6 +450,16 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                   <span className="font-display text-xl font-bold">{order.total.toFixed(2)} DT</span>
                   <div className="flex items-center gap-2">
                     <a
+                      href={`mailto:${order.customerEmail}?subject=${encodeURIComponent(
+                        `Confirmation de votre commande ${order.id} — ZoneStore`
+                      )}&body=${encodeURIComponent(
+                        `Bonjour ${order.customerName},\n\nVotre commande ${order.id} sur ZoneStore (${order.total.toFixed(2)} DT) est bien confirmée !\nStatut actuel : ${order.status}.\n\nMerci pour votre confiance,\nL'équipe ZoneStore`
+                      )}`}
+                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-[#0A0A0A] text-white hover:bg-neutral-800"
+                    >
+                      Email
+                    </a>
+                    <a
                       href={`https://wa.me/${(order.customerAddress.match(/Tél:\s*([0-9+\s]+)/)?.[1] || '').replace(/\s+/g, '')}?text=${encodeURIComponent(
                         `Bonjour ${order.customerName}, votre commande ${order.id} sur ZoneStore (${order.total.toFixed(2)} DT) est bien confirmée ! Statut : ${order.status}.`
                       )}`}
