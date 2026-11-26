@@ -56,6 +56,13 @@ db.exec(`
     active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS admins (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Seed initial products if empty
@@ -160,6 +167,17 @@ if (promoCount.count === 0) {
     INSERT INTO promo_codes (id, code, discountPercent, active)
     VALUES ('promo-1', 'ZONE10', 10, 1)
   `).run();
+}
+
+// Seed default admin if empty
+const adminCount = db.prepare('SELECT COUNT(*) AS count FROM admins').get();
+if (adminCount.count === 0) {
+  const defaultEmail = process.env.ADMIN_EMAIL || 'admin@zonestore.com';
+  const defaultPassword = process.env.ADMIN_PASSWORD || 'ZoneStore2026!';
+  db.prepare(`
+    INSERT INTO admins (id, email, password)
+    VALUES ('admin-1', ?, ?)
+  `).run(defaultEmail.toLowerCase(), defaultPassword);
 }
 
 export default db;

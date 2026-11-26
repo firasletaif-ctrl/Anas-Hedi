@@ -34,16 +34,51 @@ function requireAdmin(req, res, next) {
 
 // Auth
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body || {};
-  if (
-    String(email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
-    String(password || '') === ADMIN_PASSWORD
-  ) {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const password = String(req.body?.password || '');
+
+  const adminRow = db.prepare('SELECT * FROM admins WHERE LOWER(email) = ? AND password = ?').get(email, password);
+  const envMatch = email === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD;
+
+  if (adminRow || envMatch) {
     const token = crypto.randomBytes(24).toString('hex');
     activeTokens.add(token);
-    return res.json({ token, email: ADMIN_EMAIL });
+    return res.json({ token, email });
   }
   return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+});
+
+app.get('/api/admins', requireAdmin, (req, res) => {
+  const admins = db.prepare('SELECT id, email, created_at FROM admins ORDER BY rowid ASC').all();
+  res.json(admins);
+});
+
+app.post('/api/admins', requireAdmin, (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const password = String(req.body?.password || '');
+  if (!email || !password || password.length < 4) {
+    return res.status(400).json({ error: 'Email et mot de passe (min 4 caractères) requis' });
+  }
+  try {
+    const newAdmin = {
+      id: `admin-${Date.now()}`,
+      email,
+      password,
+    };
+    db.prepare('INSERT INTO admins (id, email, password) VALUES (@id, @email, @password)').run(newAdmin);
+    res.status(201).json({ id: newAdmin.id, email: newAdmin.email });
+  } catch {
+    res.status(400).json({ error: 'Cet email administrateur existe déjà' });
+  }
+});
+
+app.delete('/api/admins/:id', requireAdmin, (req, res) => {
+  const count = db.prepare('SELECT COUNT(*) AS count FROM admins').get().count;
+  if (count <= 1) {
+    return res.status(400).json({ error: 'Impossible de supprimer le dernier administrateur' });
+  }
+  db.prepare('DELETE FROM admins WHERE id = ?').run(req.params.id);
+  res.json({ success: true });
 });
 
 app.post('/api/auth/logout', requireAdmin, (req, res) => {
