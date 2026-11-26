@@ -334,6 +334,44 @@ app.post('/api/orders', (req, res) => {
   });
 
 async function sendOrderConfirmationEmail(order) {
+  const itemsHtml = order.items
+    .map((i) => `<li>${i.quantity}x ${i.name} — ${(i.price * i.quantity).toFixed(2)} DT</li>`)
+    .join('');
+
+  const htmlContent = `
+    <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #eee;border-radius:12px;">
+      <h2 style="margin:0 0 8px;">Merci pour votre commande, ${order.customerName} !</h2>
+      <p style="color:#666;font-size:14px;">Numéro de commande : <strong>${order.id}</strong></p>
+      <ul style="padding-left:18px;font-size:14px;">${itemsHtml}</ul>
+      <p style="font-size:16px;font-weight:bold;margin-top:16px;">Total : ${order.total.toFixed(2)} DT</p>
+      <p style="color:#666;font-size:13px;">Adresse : ${order.customerAddress}</p>
+      <p style="color:#888;font-size:12px;margin-top:24px;">ZoneStore — Vous pouvez suivre votre commande à tout moment sur le site avec le numéro ${order.id}.</p>
+    </div>
+  `;
+
+  // Option 1: Resend API (RESEND_API_KEY)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM || 'ZoneStore <onboarding@resend.dev>',
+          to: [order.customerEmail],
+          subject: `Confirmation de votre commande ${order.id} — ZoneStore`,
+          html: htmlContent,
+        }),
+      });
+      return;
+    } catch (err) {
+      console.error('Erreur Resend:', err.message);
+    }
+  }
+
+  // Option 2: SMTP (Nodemailer)
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   if (!smtpUser || !smtpPass) return;
@@ -346,24 +384,11 @@ async function sendOrderConfirmationEmail(order) {
       auth: { user: smtpUser, pass: smtpPass },
     });
 
-    const itemsHtml = order.items
-      .map((i) => `<li>${i.quantity}x ${i.name} — ${(i.price * i.quantity).toFixed(2)} DT</li>`)
-      .join('');
-
     await transporter.sendMail({
       from: `"ZoneStore" <${smtpUser}>`,
       to: order.customerEmail,
       subject: `Confirmation de votre commande ${order.id} — ZoneStore`,
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #eee;border-radius:12px;">
-          <h2 style="margin:0 0 8px;">Merci pour votre commande, ${order.customerName} !</h2>
-          <p style="color:#666;font-size:14px;">Numéro de commande : <strong>${order.id}</strong></p>
-          <ul style="padding-left:18px;font-size:14px;">${itemsHtml}</ul>
-          <p style="font-size:16px;font-weight:bold;margin-top:16px;">Total : ${order.total.toFixed(2)} DT</p>
-          <p style="color:#666;font-size:13px;">Adresse : ${order.customerAddress}</p>
-          <p style="color:#888;font-size:12px;margin-top:24px;">ZoneStore — Vous pouvez suivre votre commande à tout moment sur le site avec le numéro ${order.id}.</p>
-        </div>
-      `,
+      html: htmlContent,
     });
   } catch (err) {
     console.error('Erreur envoi email:', err.message);
