@@ -236,6 +236,17 @@ app.delete('/api/promos/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Public order tracking by ID
+app.get('/api/orders/track/:id', (req, res) => {
+  const orderId = String(req.params.id || '').trim().toUpperCase();
+  const order = db.prepare('SELECT * FROM orders WHERE UPPER(id) = ?').get(orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'Commande introuvable' });
+  }
+  const items = db.prepare('SELECT productId, name, price, quantity FROM order_items WHERE orderId = ?').all(order.id);
+  res.json({ ...order, items });
+});
+
 // Orders endpoints
 app.get('/api/orders', requireAdmin, (req, res) => {
   const orders = db.prepare('SELECT * FROM orders ORDER BY createdAt DESC').all();
