@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Product, Category } from '../types';
+import { parseProductImages } from '../utils/productImages';
 
 interface StorefrontProps {
   products: Product[];
@@ -29,11 +30,13 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
   const [selectedCategory, setSelectedCategory] = useState<'all' | Category>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [modalQty, setModalQty] = useState(1);
   const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setActiveImageIdx(0);
   }, [selectedProduct]);
 
   const openProductPage = (product: Product) => {
@@ -69,6 +72,8 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
   };
 
   if (selectedProduct) {
+    const productImages = parseProductImages(selectedProduct.image);
+    const mainImage = productImages[activeImageIdx] || productImages[0] || '';
     const recommendations = products
       .filter((p) => p.id !== selectedProduct.id && p.stock > 0)
       .slice(0, 3);
@@ -87,15 +92,38 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          {/* Left: Large Image */}
-          <div className={`lg:col-span-6 aspect-square rounded-3xl overflow-hidden border ${
-            isDark ? 'bg-zinc-900 border-white/10' : 'bg-neutral-100 border-neutral-200'
-          }`}>
-            <img
-              src={selectedProduct.image}
-              alt={selectedProduct.name}
-              className="w-full h-full object-cover"
-            />
+          {/* Left: Large Image + Thumbnails */}
+          <div className="lg:col-span-6 space-y-3">
+            <div className={`aspect-square rounded-3xl overflow-hidden border ${
+              isDark ? 'bg-zinc-900 border-white/10' : 'bg-neutral-100 border-neutral-200'
+            }`}>
+              <img
+                src={mainImage}
+                alt={selectedProduct.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {productImages.length > 1 && (
+              <div className="grid grid-cols-5 gap-2.5">
+                {productImages.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIdx(idx)}
+                    className={`aspect-square rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+                      activeImageIdx === idx
+                        ? isDark
+                          ? 'border-white'
+                          : 'border-[#0A0A0A]'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: Complete Product Sheet */}
@@ -219,7 +247,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                 >
                   <div className="aspect-square overflow-hidden bg-neutral-900">
                     <img
-                      src={rec.image}
+                      src={parseProductImages(rec.image)[0] || ""}
                       alt={rec.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -316,7 +344,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                 }`}
               >
                 <img
-                  src={featuredProduct.image}
+                  src={parseProductImages(featuredProduct.image)[0] || ""}
                   alt={featuredProduct.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -452,7 +480,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                 >
                   <div className={`relative aspect-[4/4.2] w-full overflow-hidden ${isDark ? 'bg-zinc-900' : 'bg-neutral-100'}`}>
                     <img
-                      src={product.image}
+                      src={parseProductImages(product.image)[0] || ""}
                       alt={product.name}
                       loading="lazy"
                       className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 ${

@@ -17,6 +17,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { Product, Order, Category, OrderStatus, PromoCode } from '../types';
+import { parseProductImages, serializeProductImages } from '../utils/productImages';
 
 interface SellerDashboardProps {
   token: string | null;
@@ -72,7 +73,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   const [stock, setStock] = useState('10');
   const [active, setActive] = useState(1);
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   const [badge, setBadge] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -202,7 +203,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
     setStock('10');
     setActive(1);
     setDescription('');
-    setImage('');
+    setImages([]);
     setBadge('');
     setIsModalOpen(true);
   };
@@ -216,9 +217,23 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
     setStock(String(p.stock));
     setActive(p.active);
     setDescription(p.description);
-    setImage(p.image);
+    setImages(parseProductImages(p.image));
     setBadge(p.badge || '');
     setIsModalOpen(true);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setImages((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -232,7 +247,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
       stock: parseInt(stock, 10) || 0,
       active,
       description,
-      image,
+      image: serializeProductImages(images),
       badge,
     };
     if (editingProduct) {
@@ -353,7 +368,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                   <tr key={p.id} className="hover:bg-neutral-50/60">
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
-                        <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-neutral-100" />
+                        <img src={parseProductImages(p.image)[0] || ''} alt={p.name} className="w-10 h-10 rounded-lg object-cover bg-neutral-100" />
                         <div>
                           <p className="font-medium">{p.name}</p>
                           <p className="text-xs text-neutral-400">{p.category}</p>
@@ -728,8 +743,38 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-600 mb-1">URL Image</label>
-                <input type="url" value={image} onChange={(e) => setImage(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm" />
+                <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                  Photos du produit (depuis votre PC)
+                </label>
+                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-neutral-300 rounded-2xl cursor-pointer hover:border-[#0A0A0A] transition-colors bg-neutral-50">
+                  <Upload className="w-5 h-5 text-neutral-400 mb-1" />
+                  <span className="text-xs font-medium text-neutral-600">
+                    Cliquez pour choisir une ou plusieurs photos
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+                {images.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2 mt-3">
+                    {images.map((img, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-neutral-200 group">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setImages((prev) => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/75 text-white text-xs flex items-center justify-center cursor-pointer"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
