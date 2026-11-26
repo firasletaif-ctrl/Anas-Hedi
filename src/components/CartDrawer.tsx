@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { CartItem, Order, Product } from '../types';
 import { AddressMapPicker } from './AddressMapPicker';
+import { printReceipt } from '../utils/printReceipt';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -244,29 +245,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <div className="w-full flex flex-col gap-2.5 pt-2">
                 {completedOrder && (
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(
-                      `Bonjour ZoneStore, voici ma commande ${completedOrder.id} :\n` +
-                        completedOrder.items
-                          .map((i) => `- ${i.quantity}x ${i.name} (${(i.price * i.quantity).toFixed(2)} DT)`)
-                          .join('\n') +
-                        `\nTotal : ${completedOrder.total.toFixed(2)} DT\nAdresse : ${completedOrder.customerAddress}`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full h-11 rounded-full bg-[#25D366] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90"
+                  <button
+                    onClick={() => printReceipt(completedOrder)}
+                    className={`w-full h-11 rounded-full border text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer ${
+                      isDark ? 'border-white/15 hover:bg-white/10 text-white' : 'border-neutral-300 hover:bg-neutral-100 text-[#0A0A0A]'
+                    }`}
                   >
-                    Envoyer sur WhatsApp
-                  </a>
+                    <Printer className="w-4 h-4" /> Imprimer le reçu
+                  </button>
                 )}
-                <button
-                  onClick={() => window.print()}
-                  className={`w-full h-11 rounded-full border text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer ${
-                    isDark ? 'border-white/15 hover:bg-white/10 text-white' : 'border-neutral-300 hover:bg-neutral-100 text-[#0A0A0A]'
-                  }`}
-                >
-                  <Printer className="w-4 h-4" /> Imprimer le reçu
-                </button>
                 <button
                   onClick={handleClose}
                   className={`w-full h-11 rounded-full text-sm font-semibold cursor-pointer ${
