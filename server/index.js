@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import AdmZip from 'adm-zip';
 import multer from 'multer';
+import nodemailer from 'nodemailer';
 import db from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -332,8 +333,46 @@ app.post('/api/orders', (req, res) => {
     return { ...newOrder, items: orderItems };
   });
 
+async function sendOrderConfirmationEmail(order) {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  if (!smtpUser || !smtpPass) return;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: false,
+      auth: { user: smtpUser, pass: smtpPass },
+    });
+
+    const itemsHtml = order.items
+      .map((i) => `<li>${i.quantity}x ${i.name} — ${(i.price * i.quantity).toFixed(2)} DT</li>`)
+      .join('');
+
+    await transporter.sendMail({
+      from: `"ZoneStore" <${smtpUser}>`,
+      to: order.customerEmail,
+      subject: `Confirmation de votre commande ${order.id} — ZoneStore`,
+      html: `
+        <div style="font-family:sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #eee;border-radius:12px;">
+          <h2 style="margin:0 0 8px;">Merci pour votre commande, ${order.customerName} !</h2>
+          <p style="color:#666;font-size:14px;">Numéro de commande : <strong>${order.id}</strong></p>
+          <ul style="padding-left:18px;font-size:14px;">${itemsHtml}</ul>
+          <p style="font-size:16px;font-weight:bold;margin-top:16px;">Total : ${order.total.toFixed(2)} DT</p>
+          <p style="color:#666;font-size:13px;">Adresse : ${order.customerAddress}</p>
+          <p style="color:#888;font-size:12px;margin-top:24px;">ZoneStore — Vous pouvez suivre votre commande à tout moment sur le site avec le numéro ${order.id}.</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error('Erreur envoi email:', err.message);
+  }
+}
+
   try {
     const createdOrder = placeOrder();
+    sendOrderConfirmationEmail(createdOrder);
     res.status(201).json(createdOrder);
   } catch (err) {
     res.status(400).json({ error: err.message });
