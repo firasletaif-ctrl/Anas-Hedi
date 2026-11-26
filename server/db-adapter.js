@@ -314,9 +314,8 @@ export async function placeOrder({ customerName, customerEmail, customerAddress,
         }
       }
       const total = Math.max(0, Number((subtotal - discountAmount).toFixed(2)));
-      const { rows: cnt } = await client.query('SELECT COUNT(*)::int AS count FROM orders');
       const newOrder = {
-        id: `ORD-${1000 + cnt[0].count + 1}`,
+        id: `ORD-${Date.now().toString().slice(-6)}`,
         customerName: String(customerName).trim(),
         customerEmail: String(customerEmail).trim(),
         customerAddress: String(customerAddress).trim(),
@@ -371,9 +370,8 @@ export async function placeOrder({ customerName, customerEmail, customerAddress,
       }
     }
     const total = Math.max(0, Number((subtotal - discountAmount).toFixed(2)));
-    const orderCount = sqliteDb.prepare('SELECT COUNT(*) AS count FROM orders').get().count;
     const newOrder = {
-      id: `ORD-${1000 + orderCount + 1}`,
+      id: `ORD-${Date.now().toString().slice(-6)}`,
       customerName: String(customerName).trim(),
       customerEmail: String(customerEmail).trim(),
       customerAddress: String(customerAddress).trim(),
