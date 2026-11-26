@@ -14,6 +14,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { CartItem, Product } from '../types';
+import { AddressMapPicker } from './AddressMapPicker';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -461,6 +462,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <label className="block text-xs font-medium text-neutral-400 mb-1.5">
                   Adresse de livraison *
                 </label>
+                <div className="mb-3">
+                  <AddressMapPicker isDark={isDark} onSelectAddress={(addr) => setAddress(addr)} />
+                </div>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-neutral-400 absolute left-3.5 top-3" />
                   <textarea
