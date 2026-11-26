@@ -142,7 +142,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                     <h3 className="font-display text-lg font-bold mt-0.5">{featuredProduct.name}</h3>
                   </div>
                   <span className="px-3.5 py-1.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold">
-                    {getEffectivePrice(featuredProduct).toFixed(2)} €
+                    {getEffectivePrice(featuredProduct).toFixed(2)} DT
                   </span>
                 </div>
               </div>
@@ -333,11 +333,11 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
 
                     <div className="text-right whitespace-nowrap">
                       <span className={`font-display text-lg font-bold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
-                        {finalPrice.toFixed(2)} €
+                        {finalPrice.toFixed(2)} DT
                       </span>
                       {hasDiscount && (
                         <p className={`text-xs line-through ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`}>
-                          {product.price.toFixed(2)} €
+                          {product.price.toFixed(2)} DT
                         </p>
                       )}
                     </div>
