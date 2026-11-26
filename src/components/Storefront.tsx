@@ -32,6 +32,12 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
   const [modalQty, setModalQty] = useState(1);
   const [addedId, setAddedId] = useState<string | null>(null);
 
+  const openProductPage = (product: Product) => {
+    setSelectedProduct(product);
+    setModalQty(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
@@ -58,6 +64,184 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1200);
   };
+
+  if (selectedProduct) {
+    const recommendations = products
+      .filter((p) => p.id !== selectedProduct.id && p.stock > 0)
+      .slice(0, 3);
+    const finalPrice = getEffectivePrice(selectedProduct);
+    const hasDiscount = selectedProduct.discountPercent > 0;
+
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 pb-24">
+        <button
+          onClick={() => setSelectedProduct(null)}
+          className={`inline-flex items-center gap-2 text-sm font-medium mb-8 cursor-pointer transition-colors ${
+            isDark ? 'text-zinc-400 hover:text-white' : 'text-neutral-500 hover:text-[#0A0A0A]'
+          }`}
+        >
+          ← Retour à la boutique
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          {/* Left: Large Image */}
+          <div className={`lg:col-span-6 aspect-square rounded-3xl overflow-hidden border ${
+            isDark ? 'bg-zinc-900 border-white/10' : 'bg-neutral-100 border-neutral-200'
+          }`}>
+            <img
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Right: Complete Product Sheet */}
+          <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
+            <div>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-semibold uppercase tracking-widest ${isDark ? 'text-zinc-400' : 'text-neutral-400'}`}>
+                  {CATEGORY_LABELS[selectedProduct.category] || selectedProduct.category}
+                </span>
+                {selectedProduct.sku && (
+                  <span className={`text-xs ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`}>
+                    · Réf: {selectedProduct.sku}
+                  </span>
+                )}
+              </div>
+
+              <h1 className={`mt-3 font-display text-3xl sm:text-4xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                {selectedProduct.name}
+              </h1>
+
+              <div className="mt-4 flex items-baseline gap-3">
+                <span className={`font-display text-3xl font-bold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                  {finalPrice.toFixed(2)} DT
+                </span>
+                {hasDiscount && (
+                  <>
+                    <span className="text-lg line-through text-neutral-400">
+                      {selectedProduct.price.toFixed(2)} DT
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold">
+                      -{selectedProduct.discountPercent}%
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <div className="mt-5 inline-flex items-center gap-2 text-sm">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    selectedProduct.stock > 5 ? 'bg-emerald-500' : selectedProduct.stock > 0 ? 'bg-amber-500' : 'bg-red-500'
+                  }`}
+                />
+                <span className={isDark ? 'text-zinc-300' : 'text-neutral-600'}>
+                  {selectedProduct.stock > 5
+                    ? `En stock (${selectedProduct.stock} disponibles)`
+                    : selectedProduct.stock > 0
+                    ? `Stock limité (${selectedProduct.stock} restants)`
+                    : 'Rupture de stock'}
+                </span>
+              </div>
+
+              <div className={`mt-6 pt-6 border-t ${isDark ? 'border-white/10' : 'border-neutral-200'}`}>
+                <h3 className={`text-xs font-semibold uppercase tracking-wider mb-2 ${isDark ? 'text-zinc-400' : 'text-neutral-500'}`}>
+                  Description complète
+                </h3>
+                <p className={`text-base leading-relaxed ${isDark ? 'text-zinc-300' : 'text-neutral-600'}`}>
+                  {selectedProduct.description || 'Produit premium sélectionné par ZoneStore.'}
+                </p>
+              </div>
+            </div>
+
+            <div className={`pt-6 border-t flex items-center gap-4 ${isDark ? 'border-white/10' : 'border-neutral-200'}`}>
+              {selectedProduct.stock > 0 ? (
+                <>
+                  <div className={`flex items-center border rounded-full h-12 px-3 ${isDark ? 'border-white/15 bg-white/5' : 'border-neutral-300 bg-white'}`}>
+                    <button onClick={() => setModalQty((q) => Math.max(1, q - 1))} className="w-8 h-8 cursor-pointer font-semibold">-</button>
+                    <span className="w-10 text-center text-sm font-semibold">{modalQty}</span>
+                    <button onClick={() => setModalQty((q) => Math.min(selectedProduct.stock, q + 1))} className="w-8 h-8 cursor-pointer font-semibold">+</button>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onAddToCart(selectedProduct, modalQty);
+                      setAddedId(selectedProduct.id);
+                      setTimeout(() => setAddedId(null), 1200);
+                    }}
+                    className={`flex-1 h-12 rounded-full text-sm font-semibold cursor-pointer transition-transform active:scale-95 ${
+                      addedId === selectedProduct.id
+                        ? 'bg-emerald-500 text-white'
+                        : isDark
+                        ? 'bg-white text-[#09090B] hover:bg-zinc-200'
+                        : 'bg-[#0A0A0A] text-white hover:bg-neutral-800'
+                    }`}
+                  >
+                    {addedId === selectedProduct.id ? 'Ajouté au panier ✓' : 'Ajouter au panier'}
+                  </button>
+                </>
+              ) : (
+                <button disabled className="w-full h-12 rounded-full bg-neutral-500/20 text-neutral-400 text-sm font-medium cursor-not-allowed">
+                  Rupture de stock
+                </button>
+              )}
+            </div>
+
+            <div className={`grid grid-cols-2 gap-3 pt-2 text-xs ${isDark ? 'text-zinc-400' : 'text-neutral-500'}`}>
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 shrink-0" /> Expédition 24/48h
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 shrink-0" /> Qualité garantie
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <section className={`mt-20 pt-12 border-t ${isDark ? 'border-white/10' : 'border-neutral-200'}`}>
+            <h2 className={`font-display text-2xl font-bold mb-8 ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+              Vous aimerez aussi
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {recommendations.map((rec) => (
+                <article
+                  key={rec.id}
+                  onClick={() => openProductPage(rec)}
+                  className={`group cursor-pointer rounded-3xl border overflow-hidden transition-all ${
+                    isDark
+                      ? 'bg-[#111115] border-white/10 hover:border-white/25'
+                      : 'bg-white border-neutral-200 hover:shadow-lg'
+                  }`}
+                >
+                  <div className="aspect-square overflow-hidden bg-neutral-900">
+                    <img
+                      src={rec.image}
+                      alt={rec.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-4 flex items-center justify-between gap-2">
+                    <div>
+                      <p className={`text-[11px] uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`}>
+                        {CATEGORY_LABELS[rec.category] || rec.category}
+                      </p>
+                      <h3 className={`text-sm font-semibold mt-0.5 ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                        {rec.name}
+                      </h3>
+                    </div>
+                    <span className={`font-display font-bold text-sm ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                      {getEffectivePrice(rec).toFixed(2)} DT
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
