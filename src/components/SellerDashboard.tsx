@@ -313,7 +313,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-semibold">{p.price.toFixed(2)} €</td>
+                    <td className="py-3.5 px-4 font-semibold">{p.price.toFixed(2)} DT</td>
                     <td className="py-3.5 px-4">
                       {p.discountPercent > 0 ? (
                         <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-xs font-semibold">
@@ -385,7 +385,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                     </span>
                     {order.promoCode && (
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium">
-                        Promo: {order.promoCode} (-{order.discountAmount?.toFixed(2)} €)
+                        Promo: {order.promoCode} (-{order.discountAmount?.toFixed(2)} DT)
                       </span>
                     )}
                   </div>
@@ -400,7 +400,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center justify-between md:flex-col md:items-end gap-3">
-                  <span className="font-display text-xl font-bold">{order.total.toFixed(2)} €</span>
+                  <span className="font-display text-xl font-bold">{order.total.toFixed(2)} DT</span>
                   <select
                     value={order.status}
                     onChange={(e) => onUpdateOrderStatus(order.id, e.target.value as OrderStatus)}
@@ -427,7 +427,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 <span>Chiffre d'affaires</span>
                 <TrendingUp className="w-4 h-4" />
               </div>
-              <p className="font-display text-2xl font-bold">{totalRevenue.toFixed(2)} €</p>
+              <p className="font-display text-2xl font-bold">{totalRevenue.toFixed(2)} DT</p>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-neutral-200">
               <div className="flex justify-between text-neutral-400 text-xs mb-2">
@@ -441,14 +441,14 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 <span>Panier moyen</span>
                 <TrendingUp className="w-4 h-4" />
               </div>
-              <p className="font-display text-2xl font-bold">{avgOrder.toFixed(2)} €</p>
+              <p className="font-display text-2xl font-bold">{avgOrder.toFixed(2)} DT</p>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-neutral-200">
               <div className="flex justify-between text-neutral-400 text-xs mb-2">
                 <span>Valeur du stock</span>
                 <Package className="w-4 h-4" />
               </div>
-              <p className="font-display text-2xl font-bold">{stockValue.toFixed(2)} €</p>
+              <p className="font-display text-2xl font-bold">{stockValue.toFixed(2)} DT</p>
             </div>
           </div>
 
@@ -588,7 +588,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1">Prix (€) *</label>
+                  <label className="block text-xs font-medium text-neutral-600 mb-1">Prix (DT) *</label>
                   <input type="number" step="0.01" min="0" required value={price} onChange={(e) => setPrice(e.target.value)} className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm" />
                 </div>
                 <div>

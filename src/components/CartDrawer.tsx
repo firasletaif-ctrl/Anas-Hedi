@@ -146,7 +146,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <div className="flex justify-between gap-2">
                         <div>
                           <h4 className="text-sm font-medium">{product.name}</h4>
-                          <p className="text-xs text-neutral-400 mt-0.5">{price.toFixed(2)} €</p>
+                          <p className="text-xs text-neutral-400 mt-0.5">{price.toFixed(2)} DT</p>
                         </div>
                         <button onClick={() => onRemove(product.id)} className="text-neutral-400 hover:text-red-500 p-1 cursor-pointer">
                           <Trash2 className="w-4 h-4" />
@@ -158,7 +158,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           <span className="w-6 text-center text-xs font-medium">{quantity}</span>
                           <button onClick={() => onUpdateQty(product.id, Math.min(product.stock, quantity + 1))} className="w-6 h-6 cursor-pointer">+</button>
                         </div>
-                        <span className="text-sm font-semibold">{(price * quantity).toFixed(2)} €</span>
+                        <span className="text-sm font-semibold">{(price * quantity).toFixed(2)} DT</span>
                       </div>
                     </div>
                   </div>
@@ -247,12 +247,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             {appliedPromo && (
               <div className="flex items-center justify-between text-xs text-emerald-500 mb-2">
                 <span>Réduction ({appliedPromo.code})</span>
-                <span>-{promoDiscount.toFixed(2)} €</span>
+                <span>-{promoDiscount.toFixed(2)} DT</span>
               </div>
             )}
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-neutral-400">Total</span>
-              <span className="font-display text-xl font-bold">{total.toFixed(2)} €</span>
+              <span className="font-display text-xl font-bold">{total.toFixed(2)} DT</span>
             </div>
 
             {step === 'cart' ? (

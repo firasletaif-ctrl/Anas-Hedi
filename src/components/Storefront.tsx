@@ -381,9 +381,9 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
 
                 <h2 className="mt-3 font-display text-2xl font-bold">{selectedProduct.name}</h2>
                 <div className="mt-2 flex items-baseline gap-2.5">
-                  <span className="font-display text-2xl font-bold">{getEffectivePrice(selectedProduct).toFixed(2)} €</span>
+                  <span className="font-display text-2xl font-bold">{getEffectivePrice(selectedProduct).toFixed(2)} DT</span>
                   {selectedProduct.discountPercent > 0 && (
-                    <span className="text-sm line-through text-neutral-400">{selectedProduct.price.toFixed(2)} €</span>
+                    <span className="text-sm line-through text-neutral-400">{selectedProduct.price.toFixed(2)} DT</span>
                   )}
                 </div>
 
