@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, Sun, Moon } from 'lucide-react';
+import { ShoppingBag, Sun, Moon, Package } from 'lucide-react';
 import { Logo } from './components/Logo';
 import { Storefront } from './components/Storefront';
 import { SellerDashboard } from './components/SellerDashboard';
 import { CartDrawer } from './components/CartDrawer';
+import { OrderTrackerModal } from './components/OrderTrackerModal';
 import { Product, CartItem, Order, OrderStatus, PromoCode } from './types';
 
 function isNightTime() {
@@ -25,6 +26,7 @@ export function App() {
   const [promos, setPromos] = useState<PromoCode[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isTrackerOpen, setIsTrackerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -141,12 +143,13 @@ export function App() {
           items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
         }),
       });
-      if (!res.ok) return false;
+      if (!res.ok) return null;
+      const createdOrder: Order = await res.json();
       setCart([]);
       await refreshData();
-      return true;
+      return createdOrder;
     } catch {
-      return false;
+      return null;
     }
   };
 
@@ -213,6 +216,18 @@ export function App() {
 
           {!isAdmin && (
             <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setIsTrackerOpen(true)}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-xs font-medium cursor-pointer transition-colors ${
+                  effectiveDark
+                    ? 'border-white/15 bg-white/5 text-zinc-200 hover:border-white/30'
+                    : 'border-neutral-200 bg-white text-neutral-700 hover:border-[#0A0A0A]'
+                }`}
+              >
+                <Package className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Suivi</span>
+              </button>
+
               <button
                 onClick={() => setIsDark((d) => !d)}
                 className={`p-2 rounded-full border cursor-pointer transition-colors ${
@@ -290,6 +305,12 @@ export function App() {
         onUpdateQty={handleUpdateCartQty}
         onRemove={handleRemoveFromCart}
         onCheckout={handleCheckout}
+      />
+
+      <OrderTrackerModal
+        isOpen={isTrackerOpen}
+        isDark={effectiveDark}
+        onClose={() => setIsTrackerOpen(false)}
       />
     </div>
   );

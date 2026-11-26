@@ -12,8 +12,9 @@ import {
   Mail,
   MapPin,
   Phone,
+  Printer,
 } from 'lucide-react';
-import { CartItem, Product } from '../types';
+import { CartItem, Order, Product } from '../types';
 import { AddressMapPicker } from './AddressMapPicker';
 
 interface CartDrawerProps {
@@ -28,7 +29,7 @@ interface CartDrawerProps {
     email: string;
     address: string;
     promoCode?: string;
-  }) => Promise<boolean>;
+  }) => Promise<Order | null>;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -53,6 +54,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [promoError, setPromoError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
   if (!isOpen) return null;
 
@@ -97,14 +99,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setError('');
     setSubmitting(true);
     const fullAddress = phone ? `${address} (Tél: ${phone})` : address;
-    const ok = await onCheckout({
+    const created = await onCheckout({
       name,
       email,
       address: fullAddress,
       promoCode: appliedPromo?.code,
     });
     setSubmitting(false);
-    if (ok) {
+    if (created) {
+      setCompletedOrder(created);
       setStep('success');
       setName('');
       setPhone('');
@@ -118,7 +121,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const handleClose = () => {
-    if (step === 'success') setStep('cart');
+    if (step === 'success') {
+      setStep('cart');
+      setCompletedOrder(null);
+    }
     onClose();
   };
 
@@ -194,30 +200,68 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {step === 'success' ? (
-            <div className="h-full flex flex-col items-center justify-center text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center mb-5">
-                <CheckCircle2 className="w-9 h-9" />
+            <div className="flex flex-col items-center text-center py-6 space-y-5">
+              <div className="w-14 h-14 rounded-full bg-emerald-500/15 text-emerald-500 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="font-display text-2xl font-bold">
-                Merci pour votre commande !
-              </h3>
-              <p
-                className={`mt-2.5 text-sm max-w-xs leading-relaxed ${
-                  isDark ? 'text-zinc-400' : 'text-neutral-500'
-                }`}
-              >
-                Votre commande a bien été enregistrée. Nous vous contacterons très rapidement pour la livraison.
-              </p>
-              <button
-                onClick={handleClose}
-                className={`mt-8 px-7 py-3 rounded-full text-sm font-semibold cursor-pointer ${
-                  isDark
-                    ? 'bg-white text-[#09090B] hover:bg-zinc-200'
-                    : 'bg-[#0A0A0A] text-white hover:bg-neutral-800'
-                }`}
-              >
-                Retour à la boutique
-              </button>
+              <div>
+                <h3 className="font-display text-xl font-bold">
+                  Merci pour votre commande !
+                </h3>
+                <p className={`mt-1 text-xs ${isDark ? 'text-zinc-400' : 'text-neutral-500'}`}>
+                  Conservez votre numéro pour suivre votre livraison.
+                </p>
+              </div>
+
+              {completedOrder && (
+                <div
+                  className={`w-full text-left p-4 rounded-2xl border font-mono text-xs space-y-2.5 ${
+                    isDark ? 'bg-white/[0.03] border-white/15' : 'bg-neutral-50 border-neutral-200'
+                  }`}
+                >
+                  <div className="flex justify-between font-bold border-b border-dashed border-neutral-400/30 pb-2">
+                    <span>REÇU ZONESTORE</span>
+                    <span>{completedOrder.id}</span>
+                  </div>
+                  {completedOrder.items.map((it, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{it.quantity}x {it.name}</span>
+                      <span>{(it.price * it.quantity).toFixed(2)} DT</span>
+                    </div>
+                  ))}
+                  {completedOrder.promoCode && (
+                    <div className="flex justify-between text-emerald-500">
+                      <span>Promo ({completedOrder.promoCode})</span>
+                      <span>-{Number(completedOrder.discountAmount || 0).toFixed(2)} DT</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-bold text-sm border-t border-dashed border-neutral-400/30 pt-2">
+                    <span>TOTAL</span>
+                    <span>{completedOrder.total.toFixed(2)} DT</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="w-full flex flex-col gap-2.5 pt-2">
+                <button
+                  onClick={() => window.print()}
+                  className={`w-full h-11 rounded-full border text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer ${
+                    isDark ? 'border-white/15 hover:bg-white/10 text-white' : 'border-neutral-300 hover:bg-neutral-100 text-[#0A0A0A]'
+                  }`}
+                >
+                  <Printer className="w-4 h-4" /> Imprimer le reçu
+                </button>
+                <button
+                  onClick={handleClose}
+                  className={`w-full h-11 rounded-full text-sm font-semibold cursor-pointer ${
+                    isDark
+                      ? 'bg-white text-[#09090B] hover:bg-zinc-200'
+                      : 'bg-[#0A0A0A] text-white hover:bg-neutral-800'
+                  }`}
+                >
+                  Retour à la boutique
+                </button>
+              </div>
             </div>
           ) : items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center py-12">
