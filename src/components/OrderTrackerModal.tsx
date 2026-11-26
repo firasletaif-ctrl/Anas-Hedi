@@ -19,17 +19,15 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recentIds, setRecentIds] = useState<string[]>([]);
 
-  if (!isOpen) return null;
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!orderId.trim()) return;
+  const fetchOrder = async (idToFetch: string) => {
+    if (!idToFetch.trim()) return;
     setLoading(true);
     setError('');
     setOrder(null);
     try {
-      const res = await fetch(`/api/orders/track/${encodeURIComponent(orderId.trim())}`);
+      const res = await fetch(`/api/orders/track/${encodeURIComponent(idToFetch.trim())}`);
       if (!res.ok) {
         setError('Aucune commande trouvée avec ce numéro.');
       } else {
@@ -40,6 +38,29 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem('zs_my_orders') || '[]');
+      if (Array.isArray(saved)) {
+        setRecentIds(saved);
+        if (saved.length > 0 && !order) {
+          setOrderId(saved[0]);
+          fetchOrder(saved[0]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await fetchOrder(orderId);
   };
 
   const steps = ['En attente', 'Expédiée', 'Livrée'];
@@ -98,6 +119,37 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
             {loading ? '...' : 'Suivre'}
           </button>
         </form>
+
+        {recentIds.length > 0 && (
+          <div className="mb-5">
+            <p className="text-[11px] font-medium text-neutral-400 mb-2">
+              Mes commandes récentes :
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {recentIds.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    setOrderId(id);
+                    fetchOrder(id);
+                  }}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors ${
+                    order?.id === id
+                      ? isDark
+                        ? 'bg-white text-[#09090B] border-white'
+                        : 'bg-[#0A0A0A] text-white border-[#0A0A0A]'
+                      : isDark
+                      ? 'bg-white/5 border-white/15 text-zinc-300 hover:bg-white/10'
+                      : 'bg-neutral-100 border-neutral-200 text-neutral-700 hover:bg-neutral-200'
+                  }`}
+                >
+                  {id}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="p-3.5 rounded-xl bg-red-500/15 text-red-500 text-xs font-medium mb-4">

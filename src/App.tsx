@@ -145,6 +145,13 @@ export function App() {
       });
       if (!res.ok) return null;
       const createdOrder: Order = await res.json();
+      try {
+        const saved = JSON.parse(localStorage.getItem('zs_my_orders') || '[]');
+        const updated = [createdOrder.id, ...saved.filter((id: string) => id !== createdOrder.id)].slice(0, 10);
+        localStorage.setItem('zs_my_orders', JSON.stringify(updated));
+      } catch {
+        // ignore storage errors
+      }
       setCart([]);
       await refreshData();
       return createdOrder;
