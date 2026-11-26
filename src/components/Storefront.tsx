@@ -1,5 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Search, ShoppingBag, X, Check, Package } from 'lucide-react';
+import {
+  Search,
+  ShoppingBag,
+  X,
+  Check,
+  Package,
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  Sparkles,
+} from 'lucide-react';
 import { Product, Category } from '../types';
 
 interface StorefrontProps {
@@ -34,6 +44,8 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
     });
   }, [products, selectedCategory, searchQuery]);
 
+  const featuredProduct = products[0];
+
   const getEffectivePrice = (p: Product) => {
     if (!p.discountPercent || p.discountPercent <= 0) return p.price;
     return Number((p.price * (1 - p.discountPercent / 100)).toFixed(2));
@@ -48,24 +60,139 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-      {/* Ultra-clean Hero */}
-      <section className={`py-12 sm:py-16 border-b ${isDark ? 'border-white/10' : 'border-neutral-200'}`}>
-        <h1 className={`font-display text-3xl sm:text-5xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
-          ZoneStore
-        </h1>
-        <p className={`mt-3 text-base sm:text-lg max-w-xl ${isDark ? 'text-zinc-400' : 'text-neutral-500'}`}>
-          AirPods, Bracelets Lacoste & Montres noires à chiffres arabes. L’essentiel, sans complication.
-        </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+      {/* Luxury Editorial Hero */}
+      <section className="py-10 sm:py-16">
+        <div
+          className={`relative overflow-hidden rounded-[2rem] border p-8 sm:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center ${
+            isDark
+              ? 'bg-gradient-to-br from-[#121218] via-[#0D0D12] to-[#09090B] border-white/10'
+              : 'bg-gradient-to-br from-neutral-100 via-neutral-50 to-white border-neutral-200/80'
+          }`}
+        >
+          <div className="lg:col-span-7 space-y-6">
+            <div
+              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border ${
+                isDark
+                  ? 'bg-white/5 border-white/10 text-zinc-300'
+                  : 'bg-white border-neutral-200 text-neutral-600 shadow-xs'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              Sélection Exclusive 2026
+            </div>
+
+            <h1
+              className={`font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] ${
+                isDark ? 'text-white' : 'text-[#0A0A0A]'
+              }`}
+            >
+              L’élégance au poignet.
+              <br />
+              <span className={isDark ? 'text-zinc-400' : 'text-neutral-400'}>
+                La pureté du son.
+              </span>
+            </h1>
+
+            <p
+              className={`text-base sm:text-lg max-w-lg leading-relaxed ${
+                isDark ? 'text-zinc-400' : 'text-neutral-500'
+              }`}
+            >
+              AirPods nouvelle génération, bracelets Lacoste iconiques et montres noires à chiffres arabes. Livraison rapide & stock en temps réel.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <a
+                href="#catalogue"
+                className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-semibold transition-transform active:scale-95 ${
+                  isDark
+                    ? 'bg-white text-[#09090B] hover:bg-zinc-200'
+                    : 'bg-[#0A0A0A] text-white hover:bg-neutral-800'
+                }`}
+              >
+                Découvrir la collection
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+
+          {featuredProduct && (
+            <div className="lg:col-span-5">
+              <div
+                onClick={() => {
+                  setSelectedProduct(featuredProduct);
+                  setModalQty(1);
+                }}
+                className={`group cursor-pointer relative aspect-[4/4.2] rounded-3xl overflow-hidden border shadow-2xl ${
+                  isDark ? 'border-white/15 bg-zinc-900' : 'border-neutral-200 bg-white'
+                }`}
+              >
+                <img
+                  src={featuredProduct.image}
+                  alt={featuredProduct.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between text-white">
+                  <div>
+                    <span className="text-[11px] uppercase tracking-widest text-zinc-300 font-medium">
+                      À la une
+                    </span>
+                    <h3 className="font-display text-lg font-bold mt-0.5">{featuredProduct.name}</h3>
+                  </div>
+                  <span className="px-3.5 py-1.5 rounded-full bg-white text-[#0A0A0A] text-xs font-bold">
+                    {getEffectivePrice(featuredProduct).toFixed(2)} €
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Trust Strip */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-10">
+        {[
+          { icon: Truck, title: 'Livraison Rapide', desc: 'Expédition sous 24/48h' },
+          { icon: ShieldCheck, title: 'Qualité Certifiée', desc: 'Produits vérifiés & garantis' },
+          { icon: Sparkles, title: 'Codes Promo', desc: 'Remises exclusives au panier' },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className={`flex items-center gap-4 p-4 rounded-2xl border ${
+              isDark ? 'bg-white/[0.02] border-white/10' : 'bg-neutral-50/70 border-neutral-200/70'
+            }`}
+          >
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                isDark ? 'bg-white/10 text-white' : 'bg-white text-[#0A0A0A] shadow-xs'
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                {item.title}
+              </p>
+              <p className={`text-xs ${isDark ? 'text-zinc-400' : 'text-neutral-500'}`}>
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        ))}
       </section>
 
       {/* Filter & Search */}
-      <section className={`py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-16 z-20 backdrop-blur-md border-b ${
-        isDark ? 'bg-[#09090B]/90 border-white/10' : 'bg-white/90 border-neutral-200'
-      }`}>
+      <section
+        id="catalogue"
+        className={`py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-16 z-20 backdrop-blur-xl border-y ${
+          isDark ? 'bg-[#09090B]/90 border-white/10' : 'bg-white/90 border-neutral-200/80'
+        }`}
+      >
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { id: 'all', label: 'Tout' },
+            { id: 'all', label: 'Tout voir' },
             { id: 'airpods', label: 'AirPods' },
             { id: 'bracelets', label: 'Bracelets Lacoste' },
             { id: 'montres', label: 'Montres' },
@@ -76,8 +203,8 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 selectedCategory === tab.id
                   ? isDark
-                    ? 'bg-white text-[#09090B]'
-                    : 'bg-[#0A0A0A] text-white'
+                    ? 'bg-white text-[#09090B] shadow-sm'
+                    : 'bg-[#0A0A0A] text-white shadow-sm'
                   : isDark
                   ? 'bg-white/5 text-zinc-400 hover:text-white'
                   : 'bg-neutral-100 text-neutral-600 hover:text-[#0A0A0A]'
@@ -88,13 +215,17 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
           ))}
         </div>
 
-        <div className="relative sm:w-64">
-          <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`} />
+        <div className="relative sm:w-72">
+          <Search
+            className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${
+              isDark ? 'text-zinc-500' : 'text-neutral-400'
+            }`}
+          />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher..."
+            placeholder="Rechercher un produit..."
             className={`w-full pl-10 pr-4 py-2 rounded-full text-sm border focus:outline-none transition-colors ${
               isDark
                 ? 'bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:border-white/30'
@@ -105,7 +236,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
       </section>
 
       {/* Product Grid */}
-      <section className="pt-8">
+      <section className="pt-10">
         {filteredProducts.length === 0 ? (
           <div className="py-24 text-center">
             <Package className={`w-10 h-10 mx-auto mb-3 ${isDark ? 'text-zinc-700' : 'text-neutral-300'}`} />
@@ -126,31 +257,34 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                     setSelectedProduct(product);
                     setModalQty(1);
                   }}
-                  className="group cursor-pointer flex flex-col"
+                  className={`group cursor-pointer flex flex-col rounded-3xl border overflow-hidden transition-all duration-300 ${
+                    isDark
+                      ? 'bg-[#111115] border-white/10 hover:border-white/25'
+                      : 'bg-white border-neutral-200/80 hover:border-neutral-300 hover:shadow-xl hover:shadow-black/5'
+                  }`}
                 >
-                  <div className={`relative aspect-square w-full overflow-hidden rounded-2xl border ${
-                    isDark ? 'bg-zinc-900 border-white/10' : 'bg-neutral-100 border-neutral-200/80'
-                  }`}>
+                  <div className={`relative aspect-[4/4.2] w-full overflow-hidden ${isDark ? 'bg-zinc-900' : 'bg-neutral-100'}`}>
                     <img
                       src={product.image}
                       alt={product.name}
                       loading="lazy"
-                      className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+                      className={`h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 ${
                         outOfStock ? 'opacity-40 grayscale' : ''
                       }`}
                     />
 
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex gap-1.5">
+                    <div className="absolute top-3.5 left-3.5 flex gap-1.5">
                       {hasDiscount && !outOfStock && (
-                        <span className="px-2.5 py-1 rounded-full bg-red-500 text-white text-[11px] font-semibold">
+                        <span className="px-2.5 py-1 rounded-full bg-red-500 text-white text-[11px] font-bold shadow-xs">
                           -{product.discountPercent}%
                         </span>
                       )}
                       {product.badge && !outOfStock && (
-                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-medium backdrop-blur-md ${
-                          isDark ? 'bg-black/60 text-white' : 'bg-white/90 text-[#0A0A0A]'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-[11px] font-semibold backdrop-blur-md ${
+                            isDark ? 'bg-black/65 text-white' : 'bg-white/90 text-[#0A0A0A] shadow-xs'
+                          }`}
+                        >
                           {product.badge}
                         </span>
                       )}
@@ -159,12 +293,12 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                     {!outOfStock && (
                       <button
                         onClick={(e) => handleQuickAdd(e, product)}
-                        className={`absolute bottom-3 right-3 h-10 px-4 rounded-full flex items-center gap-1.5 text-xs font-semibold shadow-md transition-all cursor-pointer ${
+                        className={`absolute bottom-3.5 right-3.5 h-10 px-4 rounded-full flex items-center gap-1.5 text-xs font-semibold shadow-lg transition-all cursor-pointer ${
                           isAdded
                             ? 'bg-emerald-500 text-white'
                             : isDark
-                            ? 'bg-white text-[#09090B] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'
-                            : 'bg-[#0A0A0A] text-white opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0'
+                            ? 'bg-white text-[#09090B] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'
+                            : 'bg-[#0A0A0A] text-white opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'
                         }`}
                       >
                         {isAdded ? <Check className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
@@ -173,19 +307,20 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                     )}
                   </div>
 
-                  <div className="mt-3.5 flex items-start justify-between gap-2">
+                  <div className="p-5 flex items-start justify-between gap-3">
                     <div>
-                      <p className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`}>
+                      <p className={`text-[11px] font-semibold uppercase tracking-wider ${isDark ? 'text-zinc-500' : 'text-neutral-400'}`}>
                         {CATEGORY_LABELS[product.category] || product.category}
                       </p>
-                      <h3 className={`mt-0.5 text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                      <h3 className={`mt-1 text-base font-semibold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
                         {product.name}
                       </h3>
-                      {/* Stock indicator */}
-                      <div className="mt-1.5 flex items-center gap-1.5 text-xs">
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          product.stock > 5 ? 'bg-emerald-500' : product.stock > 0 ? 'bg-amber-500' : 'bg-red-500'
-                        }`} />
+                      <div className="mt-2 inline-flex items-center gap-1.5 text-xs">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            product.stock > 5 ? 'bg-emerald-500' : product.stock > 0 ? 'bg-amber-500' : 'bg-red-500'
+                          }`}
+                        />
                         <span className={isDark ? 'text-zinc-400' : 'text-neutral-500'}>
                           {product.stock > 5
                             ? `En stock (${product.stock})`
@@ -197,7 +332,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
                     </div>
 
                     <div className="text-right whitespace-nowrap">
-                      <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
+                      <span className={`font-display text-lg font-bold ${isDark ? 'text-white' : 'text-[#0A0A0A]'}`}>
                         {finalPrice.toFixed(2)} €
                       </span>
                       {hasDiscount && (
@@ -217,7 +352,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
       {/* Product Detail Modal */}
       {selectedProduct && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm"
           onClick={() => setSelectedProduct(null)}
         >
           <div
@@ -233,7 +368,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
             <div className="p-6 sm:p-8 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-neutral-400'}`}>
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-neutral-400'}`}>
                     {CATEGORY_LABELS[selectedProduct.category] || selectedProduct.category}
                   </span>
                   <button
@@ -246,7 +381,7 @@ export const Storefront: React.FC<StorefrontProps> = ({ products, isDark, onAddT
 
                 <h2 className="mt-3 font-display text-2xl font-bold">{selectedProduct.name}</h2>
                 <div className="mt-2 flex items-baseline gap-2.5">
-                  <span className="text-2xl font-bold">{getEffectivePrice(selectedProduct).toFixed(2)} €</span>
+                  <span className="font-display text-2xl font-bold">{getEffectivePrice(selectedProduct).toFixed(2)} €</span>
                   {selectedProduct.discountPercent > 0 && (
                     <span className="text-sm line-through text-neutral-400">{selectedProduct.price.toFixed(2)} €</span>
                   )}
