@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Search, Package, Truck, CheckCircle2, Clock, Printer } from 'lucide-react';
 import { Order } from '../types';
+import { printReceipt } from '../utils/printReceipt';
 
 interface OrderTrackerModalProps {
   isOpen: boolean;
@@ -241,7 +242,7 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
             </div>
 
             <button
-              onClick={() => window.print()}
+              onClick={() => printReceipt(order)}
               className={`w-full h-11 rounded-full border text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer ${
                 isDark
                   ? 'border-white/15 hover:bg-white/10 text-white'
